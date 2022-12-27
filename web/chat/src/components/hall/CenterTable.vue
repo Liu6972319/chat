@@ -17,7 +17,9 @@
             <el-table-column prop="detail" label="详情" show-overflow-tooltip/>
             <el-table-column label="操作">
               <template #default="scope">
-                <a v-if="scope.row.passwd === 'true'" style="color:red">*</a>
+                <el-icon v-if="scope.row.passwd === 'true'" color="red"><Lock /></el-icon>
+                <el-icon v-if="scope.row.passwd === 'false'" color="green"><Unlock /></el-icon>
+<!--                <a v-if="scope.row.passwd === 'true'" style="color:red">*</a>-->
                 <el-button
                     v-if="scope.row.roomId === this.userId"
                     size="small"

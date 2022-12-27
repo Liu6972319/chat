@@ -1,7 +1,12 @@
 <template>
   <el-container id="box" style="height: 100%">
     <el-header id="header">
-      <div>Chat</div>
+      <div>
+        <a>Chat</a>
+        <div style="cursor:pointer;float: right;font-size: 20px" @click="jumpGithub">
+          源码<el-icon ><Link /></el-icon>
+        </div>
+      </div>
     </el-header>
     <el-container>
       <center-table :height="tableHeight"/>
@@ -24,6 +29,9 @@ export default {
     }
   },
   methods: {
+    jumpGithub(){
+      window.open("https://github.com/Liu6972319/chat", '_blank');
+    },
     handleCurrentChange(number) {
     },
     /**

@@ -6,6 +6,8 @@ import VueNativeSock from "vue-native-websocket-vue3";
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 
 const app = createApp(App)
 
@@ -27,6 +29,9 @@ app.use(VueNativeSock,import.meta.env.VITE_APP_BASE_SOCKET,{
 });
 
 app.use(ElementPlus)
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+}
 
 app.mount('#app')
 
