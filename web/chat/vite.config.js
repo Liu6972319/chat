@@ -25,7 +25,7 @@ export default defineConfig({
         // },
         proxy: {
             '/webrtc': {
-                target: 'http://192.168.0.105:8080',	//实际请求地址
+                target: 'http://127.0.0.1:8080',	//实际请求地址
                 changeOrigin: true,
                 // ws:true,
                 // rewrite: (path) => path.replace(/^\/api/, '')

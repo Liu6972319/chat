@@ -12,7 +12,7 @@ export default {
   name: "ManyRoom",
   data() {
     return {
-      lock: false,
+      // lock: false,
       videoWidth: 480,
       roomId: this.$route.query.roomId,
       userId: this.$store.getters['user/getId'],
@@ -46,6 +46,10 @@ export default {
     }
     console.log("删除监听事件")
     this.$options.sockets.onmessage = undefined
+
+    console.log("注册监听事件")
+    // 注册监听事件
+    this.onListener();
   },
   mounted() {
     // window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e));
@@ -81,12 +85,14 @@ export default {
       this.nativeMedia();
 
       console.log("进入房间")
-      // 进入房间
+      // 告知后台有用户 进入房间
       let res = await join({roomId: this.roomId, userId: this.userId})
-      await this.onJoin({users: res})
-      console.log("注册监听事件")
-      // 注册监听事件
-      this.onListener();
+      if (res !== null && res.length > 0) {
+        // 用户列表更新
+        await this.onJoin({users: res});
+        // 创建 offer
+        await this.onCreateOffer()
+      }
     },
     // 监听服务器信息
     onListener() {
@@ -190,13 +196,13 @@ export default {
           }
           this.$socket.sendObj(SocketEntity("offer", params))
           // 设置锁状态
-          this.lock = true;
+          // this.lock = true;
         }
       }
       // 如果没有锁定，通知后台解锁
-      if(!this.lock){
-        joinSuccess({userId: this.userId, roomId: this.roomId}).then(res=>{})
-      }
+      // if(!this.lock){
+      //   // joinSuccess({userId: this.userId, roomId: this.roomId}).then(res=>{})
+      // }
     },
     // 监听用户加入
     async onJoin(data) {
@@ -220,7 +226,7 @@ export default {
       let userId = data.userId;
       console.log("移出用户： ", userId)
       if (this.userList.indexOf(userId) > -1) {
-        this.userList.splice(this.userList.indexOf(userId),1)
+        this.userList.splice(this.userList.indexOf(userId), 1)
       }
       // this.userList = this.userList.filter((value, index, arr) => {
       //   return value !== userId;
@@ -260,19 +266,19 @@ export default {
             that.$socket.sendObj(SocketEntity("candidate", params))
           } else {
             console.log("ICE 收集完成")
-            if (that.lock){
-              joinSuccess({userId: that.userId, roomId: that.roomId}).then(res=>{
-                that.lock = false;
-              })
-            }
+            // if (that.lock){
+            //   // joinSuccess({userId: that.userId, roomId: that.roomId}).then(res=>{
+            //   //   that.lock = false;
+            //   // })
+            // }
           }
         };
         // 监听stream
         peer.onaddstream = async (event) => {
           console.log("当前用户 ", this.userId)
           console.log("监听到视频加入 加入用户 ", ele)
-          await this.onJoin({users: [ele]})
           that.createEleVideo(event.stream, ele)
+          // await that.createEleVideo(event.stream, ele)
         };
       }
     },
@@ -280,15 +286,20 @@ export default {
     createEleVideo(stream, id) {
       // 存储 stream
       this.streamList[id] = stream;
-      // 找到 dom
-      let video = this.$refs[id][0];
-      //设置视频流
-      video.srcObject = stream
-      //播放视频
-      video.onloadedmetadata = function (e) {
-        video.play();
-      };
-      console.log("添加视频成功")
+      setTimeout(() => {
+        // 找到 dom
+        let video = this.$refs[id][0];
+        //设置视频流
+        video.srcObject = stream
+        console.log(video.srcObject)
+        //播放视频
+        video.onloadedmetadata = function (e) {
+          video.play();
+        };
+        console.log("添加视频成功")
+        // 添加成功后 告知
+      }, 1000)
+
     },
 
     // 退出房间
@@ -304,12 +315,12 @@ export default {
   watch: {},
   unmounted() {
     console.log("销毁子组件")
-    console.log("删除监听事件")
-    this.$options.sockets.onmessage = undefined
+    // console.log("删除监听事件")
+    // this.$options.sockets.onmessage = undefined
   },
   destroyed() {
-    console.log("删除监听事件")
-    this.$options.sockets.onmessage = undefined
+    // console.log("删除监听事件")
+    // this.$options.sockets.onmessage = undefined
   }
 }
 </script>

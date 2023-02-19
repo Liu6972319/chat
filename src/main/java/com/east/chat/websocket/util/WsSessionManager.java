@@ -3,9 +3,8 @@ package com.east.chat.websocket.util;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.east.chat.websocket.entity.SocketEntity;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -23,6 +22,20 @@ public class WsSessionManager {
      * 保存连接 session 的地方
      */
     private static final ConcurrentHashMap<String, WebSocketSession> SESSION_POOL = new ConcurrentHashMap<>();
+
+    public static void send(String key, SocketEntity socketEntity){
+        synchronized(SESSION_POOL){
+            // 获得 session
+            try {
+                WebSocketSession webSocketSession = SESSION_POOL.get(key);
+                if (webSocketSession != null){
+                    webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(socketEntity)));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     /**
      * 添加 session

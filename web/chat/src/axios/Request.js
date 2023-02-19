@@ -28,6 +28,7 @@ service.interceptors.response.use(
         } else if (code === 500) {
             // 业务错误
             ElMessageBox.alert(msg)
+            return Promise.reject(new Error(data))
         }else{
             return Promise.reject(new Error(msg))
         }

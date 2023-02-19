@@ -95,18 +95,9 @@ public class WebSocketController implements WebSocketHandler {
                 lrange.remove(id);
                 jedis.lrem(key, 0, id);
                 for (String userId : lrange) {
-                    WebSocketSession webSocketSession = WsSessionManager.get(userId);
-                    if (webSocketSession != null) {
-                        synchronized (webSocketSession) {
-                            try {
-                                JSONObject object = new JSONObject();
-                                object.putOnce("userId", id);
-                                webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(new SocketEntity("exit", object))));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
+                    JSONObject object = new JSONObject();
+                    object.putOnce("userId", id);
+                    WsSessionManager.send(userId,new SocketEntity("exit", object));
                 }
             }
         });

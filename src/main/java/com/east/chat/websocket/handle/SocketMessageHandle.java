@@ -1,11 +1,15 @@
 package com.east.chat.websocket.handle;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.east.chat.config.RedissonConfig;
 import com.east.chat.util.JedisLock;
+import com.east.chat.util.SpringContextUtils;
 import com.east.chat.websocket.entity.SocketEntity;
 import com.east.chat.websocket.util.WsSessionManager;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -39,12 +43,7 @@ public class SocketMessageHandle {
     private void rtcHandle(WebSocketSession session, SocketEntity object) throws IOException {
         JSONObject data = object.getData();
         String targetId = data.get("targetId").toString();
-        WebSocketSession webSocketSession = WsSessionManager.get(targetId);
-        if (webSocketSession != null) {
-            synchronized (webSocketSession) {
-                webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(object)));
-            }
-        }
+        WsSessionManager.send(targetId,object);
     }
 
     public void candidate(WebSocketSession session, SocketEntity object) throws IOException {
@@ -57,9 +56,11 @@ public class SocketMessageHandle {
         rtcHandle(session, object);
     }
 
-    public void joinSuccess(WebSocketSession session, SocketEntity object){
+    public void joinSuccess(WebSocketSession session, SocketEntity object) {
         String userId = object.getData().get("userId").toString();
-        JedisLock.releaseLock("joinLockKey",userId);
+//        JedisLock.releaseLock("joinLockKey",userId);
+        RedissonClient redissonClient = (RedissonClient) SpringContextUtils.getBean("redissonClient");
+        redissonClient.getLock("joinLockKey:" + userId).unlock();
     }
 
 }

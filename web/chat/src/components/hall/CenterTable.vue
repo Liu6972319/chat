@@ -94,7 +94,7 @@
 
     <el-dialog v-model="passwdDialog" title="加入房间">
       <el-form :label-width="80">
-        <el-form-item label="房间ID">
+        <el-form-item label="房间密码">
           <el-input v-model="verifyPasswd" autocomplete="off"/>
         </el-form-item>
       </el-form>
@@ -220,13 +220,15 @@ export default {
         passwd: md5(this.verifyPasswd)
       }
       checkPasswd(param).then(res=>{
-        // 进入房间
-        this.$router.push({
-          path: "room",
-          query: {
-            roomId: this.verifyRoomId
-          }
-        })
+        if (res === '密码正确'){
+          // 进入房间
+          this.$router.push({
+            path: "room",
+            query: {
+              roomId: this.verifyRoomId
+            }
+          })
+        }
       })
       this.passwdDialog = false
     },
