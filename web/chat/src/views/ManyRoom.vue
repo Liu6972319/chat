@@ -127,7 +127,19 @@ export default {
         this.$message.error("设备不支持")
         console.log('getUserMedia is not support!')
       }
-      return await navigator.mediaDevices.getUserMedia({audio: true, video: true})
+      return await navigator.mediaDevices.getUserMedia({
+        audio: {
+          // volume: 0,
+          // echoCancellation: {exact: true},
+          //回声消除
+          echoCancellation: true,
+          //开启降噪
+          noiseSuppression: true,
+          // 本地音频在本地扬声器播放
+          // suppressLocalAudioPlayback: false
+        },
+        video: true
+      })
     },
     // 本地摄像头打开
     nativeMedia() {
